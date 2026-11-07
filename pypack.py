@@ -608,7 +608,19 @@ def build_windows_exe(
             raise PackageError(f"Windows native build failed:\n{details}")
         if not temporary_exe.is_file():
             raise PackageError("The compiler finished without producing an executable.")
-        os.replace(temporary_exe, output_path)
+        temporary_output = tempfile.NamedTemporaryFile(
+            prefix=output_path.name + ".",
+            suffix=".tmp",
+            dir=output_path.parent,
+            delete=False,
+        )
+        temporary_output.close()
+        staged_output = Path(temporary_output.name)
+        try:
+            shutil.copy2(temporary_exe, staged_output)
+            os.replace(staged_output, output_path)
+        finally:
+            staged_output.unlink(missing_ok=True)
 
 
 def _find_wix7() -> Path | None:

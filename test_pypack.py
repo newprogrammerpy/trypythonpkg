@@ -218,20 +218,22 @@ class PackageTests(unittest.TestCase):
             )
 
     def test_run_forwards_help_option_as_program_argument(self):
+        package = self.directory / "program.pypkg"
+        package.touch()
         with (
             patch(
                 "sys.argv",
-                ["pypack.py", "run", str(self.directory / "program.pypkg"), "--help"],
+                ["pypack.py", "run", str(package), "--help"],
             ),
             patch.object(pypack, "run_package") as run_package,
         ):
             result = pypack.main()
 
         self.assertEqual(result, 0)
-        run_package.assert_called_once_with(
-            (self.directory / "program.pypkg").resolve(),
-            ["--help"],
-        )
+        run_package.assert_called_once()
+        actual_package, actual_args = run_package.call_args.args
+        self.assertTrue(actual_package.samefile(package))
+        self.assertEqual(actual_args, ["--help"])
 
     def test_wix7_msi_source_describes_per_user_x64_install(self):
         executable = self.directory / 'My "App".exe'

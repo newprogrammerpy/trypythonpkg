@@ -49,7 +49,8 @@ class AndroidArm64CapabilityTests(unittest.TestCase):
         (ndk / "package.xml").write_text("<package/>", encoding="ascii")
         cmake = sdk / "cmake" / "3.22.1" / "bin"
         cmake.mkdir(parents=True)
-        (cmake / "cmake.exe").write_bytes(b"")
+        executable = "cmake.exe" if os.name == "nt" else "cmake"
+        (cmake / executable).write_bytes(b"")
         return sdk
 
     @staticmethod
@@ -204,8 +205,11 @@ class AndroidArm64CapabilityTests(unittest.TestCase):
         from targets.android_arm64 import build
 
         output = []
-        with patch("sys.argv", ["build.py", "--check", "--python-prefix", str(self.root / "missing")]), \
-                patch("builtins.print", side_effect=output.append):
+        with (
+            patch("sys.argv", ["build.py", "--check", "--python-prefix", str(self.root / "missing")]),
+            patch.dict(os.environ, {"PATH": ""}, clear=True),
+            patch("builtins.print", side_effect=output.append),
+        ):
             status = build.main()
 
         self.assertEqual(status, 1)
