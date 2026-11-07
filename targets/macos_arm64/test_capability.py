@@ -76,7 +76,7 @@ class MacOSArm64BuilderTests(unittest.TestCase):
 
             self.assertEqual(found_framework, framework.resolve())
             self.assertEqual(found_version, "3.13")
-            self.assertEqual(interpreter, version / "bin" / "python3")
+            self.assertTrue(interpreter.samefile(version / "bin" / "python3"))
 
     def test_includes_cannot_escape_source_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
