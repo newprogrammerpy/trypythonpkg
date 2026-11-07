@@ -1,0 +1,65 @@
+name: Test and build Windows x64
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Python tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run packager tests
+        run: python -m unittest discover -s . -p "test_*.py" -v
+      - name: Run target tests
+        shell: bash
+        run: |
+          for target in targets/*; do
+            [ -d "$target" ] || continue
+            compgen -G "$target/test_*.py" > /dev/null || continue
+            python -m unittest discover -s "$target" -p "test_*.py" -v || exit $?
+          done
+
+  windows-x64:
+    name: Build and run standalone Windows x64 EXE
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Build standalone test application
+        shell: pwsh
+        run: |
+          $sample = Join-Path $env:RUNNER_TEMP "pypack-smoke"
+          New-Item -ItemType Directory -Force -Path $sample | Out-Null
+          @'
+          import sys
+          print("pypack-actions-ok", *sys.argv[1:])
+          '@ | Set-Content -Encoding utf8 (Join-Path $sample "main.py")
+          python .\pypack.py exe (Join-Path $sample "main.py") (Join-Path $sample "main.exe")
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $output = & (Join-Path $sample "main.exe") "argument with spaces"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($output -ne "pypack-actions-ok argument with spaces") {
+            throw "Unexpected executable output: $output"
+          }
+      - name: Upload standalone executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypack-windows-x64
+          path: ${{ runner.temp }}/pypack-smoke/main.exe
+          if-no-files-found: error

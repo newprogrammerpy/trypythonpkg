@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": "ios-arm64",
+  "name": "iOS device (physical iPhone and iPad)",
+  "device_architectures": [
+    "arm64"
+  ],
+  "simulator_architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "simulator_is_separate_build_target": true,
+  "artifact": {
+    "extension": ".ipa",
+    "kind": "ZIP archive containing a signed iOS app bundle",
+    "is_generic_executable": false
+  },
+  "build_requirements": {
+    "host_os": "macOS",
+    "toolchain": "Full Xcode installation with the iOS SDK",
+    "device_signing": [
+      "App-specific bundle identifier",
+      "Apple development team",
+      "Code-signing identity",
+      "Matching provisioning profile or Xcode-managed signing"
+    ]
+  },
+  "python_runtime": {
+    "must_be_built_for_ios": true,
+    "windows_cpython_runtime_compatible": false,
+    "options": [
+      {
+        "name": "BeeWare Briefcase",
+        "details": "Creates an Xcode project and integrates an iOS-compatible Python runtime."
+      },
+      {
+        "name": "Python-Apple-support",
+        "details": "Provides Python XCFrameworks for embedding in Apple platform projects."
+      }
+    ]
+  },
+  "distribution_notes": [
+    "An embedded Python interpreter does not bypass Apple's signing, provisioning, review, or distribution requirements.",
+    "Review App Store Review Guideline 2.5.2 before allowing downloaded code to add or change app functionality."
+  ],
+  "implementation_status": "descriptor_preflight_and_xcode_project_scaffold"
+}

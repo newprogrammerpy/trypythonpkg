@@ -1,0 +1,25 @@
+{
+  "id": "macos-arm64",
+  "name": "macOS ARM64",
+  "artifact": {
+    "format": "application-bundle",
+    "suffix": ".app",
+    "architecture": "arm64"
+  },
+  "requirements": {
+    "build_host": "macOS",
+    "toolchain": "Xcode command-line tools with the macOS SDK",
+    "runtime": "CPython runtime built for macOS arm64"
+  },
+  "distribution": {
+    "signing": "Developer ID signing is required for normal external distribution",
+    "notarization": "Apple notarization is required for normal external distribution"
+  },
+  "builder": "build_app.py",
+  "implemented": true,
+  "distribution_formats": {
+    "application": ".app bundle",
+    "disk_image": ".dmg (separate packaging step)",
+    "installer": ".pkg (separate packaging step)"
+  }
+}
