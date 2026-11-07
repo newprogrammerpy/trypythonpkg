@@ -198,7 +198,9 @@ class TargetTests(unittest.TestCase):
             self.assertIn(f"-I{runtime / 'include' / 'python3.14'}", argv)
             self.assertIn(f"-L{runtime / 'lib'}", argv)
             self.assertIn("-l:libpython3.14.so", argv)
-            self.assertEqual(argv[-2:], ["-o", str(output)])
+            self.assertEqual(argv[-2], "-o")
+            self.assertEqual(Path(argv[-1]).name, output.name)
+            self.assertTrue(os.path.samefile(Path(argv[-1]).parent, output.parent))
             self.assertIn(shlex.quote(str(launcher)), recipe["shell_command"])
             self.assertIn(shlex.quote(f"--sysroot={sysroot}"), recipe["shell_command"])
 
