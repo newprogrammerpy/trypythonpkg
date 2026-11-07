@@ -1,3 +1,4 @@
+import os
 import shlex
 import subprocess
 import tempfile
@@ -165,6 +166,7 @@ class TargetTests(unittest.TestCase):
             runtime = root / "target python"
             launcher = root / "linux launcher.c"
             output = root / "dist folder" / "sample app"
+            output.parent.mkdir(parents=True)
             (sysroot / "usr" / "include").mkdir(parents=True)
             (runtime / "bin").mkdir(parents=True)
             (runtime / "include" / "python3.14").mkdir(parents=True)
@@ -188,7 +190,8 @@ class TargetTests(unittest.TestCase):
 
             self.assertTrue(recipe["recipe_available"])
             self.assertFalse(recipe["application_build_available"])
-            self.assertEqual(recipe["commands"][0], ["mkdir", "-p", str(output.parent)])
+            self.assertEqual(recipe["commands"][0][:2], ["mkdir", "-p"])
+            self.assertTrue(os.path.samefile(recipe["commands"][0][2], output.parent))
             argv = recipe["compile_argv"]
             self.assertEqual(argv[0], config.compiler)
             self.assertIn(f"--sysroot={sysroot}", argv)
