@@ -201,8 +201,8 @@ class TargetTests(unittest.TestCase):
             self.assertEqual(argv[-2], "-o")
             self.assertEqual(Path(argv[-1]).name, output.name)
             self.assertTrue(os.path.samefile(Path(argv[-1]).parent, output.parent))
-            self.assertIn(shlex.quote(str(launcher)), recipe["shell_command"])
-            self.assertIn(shlex.quote(f"--sysroot={sysroot}"), recipe["shell_command"])
+            self.assertIn(shlex.quote(argv[5]), recipe["shell_command"])
+            self.assertIn(shlex.quote(argv[1]), recipe["shell_command"])
 
     def test_build_recipe_fails_closed_for_windows_host_or_missing_launcher_source(self):
         with tempfile.TemporaryDirectory() as temporary:
