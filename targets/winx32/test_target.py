@@ -79,6 +79,7 @@ class Winx32CapabilityTests(unittest.TestCase):
     def test_probe_is_ready_only_with_valid_x86_runtime_and_toolchain(self):
         with tempfile.TemporaryDirectory() as directory:
             python_root = _make_python_root(Path(directory) / "python-x86")
+            resolved_python_root = python_root.resolve()
             with patch.object(
                 target,
                 "_discover_toolchain",
@@ -87,7 +88,7 @@ class Winx32CapabilityTests(unittest.TestCase):
                 result = target.probe(platform="win32", python_root=python_root)
 
         self.assertTrue(result.ready)
-        self.assertEqual(result.python_root, python_root)
+        self.assertEqual(result.python_root, resolved_python_root)
 
     def test_python_root_rejects_x64_interpreter(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -223,7 +224,7 @@ class Winx32CapabilityTests(unittest.TestCase):
             ):
                 built = target.build_windows_exe(source, output, python_root)
 
-            self.assertEqual(built, output)
+            self.assertTrue(built.samefile(output))
             self.assertTrue(target._is_x86_executable(output))
 
 
